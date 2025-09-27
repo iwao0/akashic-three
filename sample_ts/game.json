@@ -1,0 +1,55 @@
+{
+	"width": 1280,
+	"height": 720,
+	"fps": 30,
+	"renderers": "webgl",
+	"main": "./script/_bootstrap.js",
+	"assets": {
+		"_bootstrap": {
+			"type": "script",
+			"path": "script/_bootstrap.js",
+			"global": true
+		},
+		"main": {
+			"type": "script",
+			"path": "script/main.js",
+			"global": true
+		},
+		"parameterObject": {
+			"type": "script",
+			"path": "script/parameterObject.js",
+			"global": true
+		},
+		"Scene3D": {
+			"type": "script",
+			"path": "script/Scene3D.js",
+			"global": true
+		},
+		"node_modules/@iwao0/akashic-three/assets/warning.png": {
+			"type": "image",
+			"path": "node_modules/@iwao0/akashic-three/assets/warning.png",
+			"width": 1000,
+			"height": 400
+		}
+	},
+	"environment": {
+		"sandbox-runtime": "3",
+		"nicolive": {
+			"supportedModes": [
+				"ranking"
+			],
+			"preferredSessionParameters": {
+				"totalTimeLimit": 82
+			}
+		}
+	},
+	"globalScripts": [
+		"node_modules/@iwao0/akashic-three/lib/Sprite3D.js",
+		"node_modules/@iwao0/akashic-three/lib/index.js",
+		"node_modules/three/build/three.cjs"
+	],
+	"moduleMainScripts": {
+		"@iwao0/akashic-three": "node_modules/@iwao0/akashic-three/lib/index.js",
+		"three": "node_modules/three/build/three.cjs"
+	}
+}

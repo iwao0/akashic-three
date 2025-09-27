@@ -1,0 +1,49 @@
+{
+  "name": "@iwao0/akashic-three",
+  "version": "0.0.5",
+  "description": "",
+  "homepage": "https://github.com/iwao0/akashic-three#readme",
+  "bugs": {
+    "url": "https://github.com/iwao0/akashic-three/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iwao0/akashic-three.git"
+  },
+  "license": "MIT",
+  "author": "iwao0",
+  "type": "commonjs",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "prepare": "rimraf lib && npm run build",
+    "build": "tsc",
+    "test": "npm run lint",
+    "lint": "eslint \"src/**/*.ts\" --fix"
+  },
+  "bin": {
+    "akashic-three": "command.js"
+  },
+  "files": [
+    "lib",
+    "assets",
+    "akashic-lib.json",
+    "GPUTexture.d.ts",
+    "webgpu.d.ts"
+  ],
+  "devDependencies": {
+    "@akashic/akashic-engine": "^3.21.0",
+    "@akashic/eslint-config": "^3.0.2",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.28.4",
+    "@types/three": "^0.180.0",
+    "acorn": "^8.15.0",
+    "astravel": "^0.6.1",
+    "astring": "^1.9.0",
+    "log4js": "^6.9.1",
+    "three": "^0.180.0"
+  }
+}

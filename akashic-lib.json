@@ -1,0 +1,17 @@
+{
+  "gameCofigurationData": {
+    "environment": {
+      "external": {
+        "contentStorage": "1"
+      }
+    }
+  },
+  "assetList": [
+    {
+      "type": "image",
+      "path": "assets/warning.png",
+      "width": 1000,
+      "height": 400
+    }
+  ]
+}
