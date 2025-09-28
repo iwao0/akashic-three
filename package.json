@@ -1,6 +1,6 @@
 {
   "name": "@iwao0/akashic-three",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "",
   "homepage": "https://github.com/iwao0/akashic-three#readme",
   "bugs": {
@@ -34,6 +34,7 @@
   "devDependencies": {
     "@akashic/akashic-engine": "^3.21.0",
     "@akashic/eslint-config": "^3.0.2",
+    "@types/node": "^24.5.2",
     "rimraf": "^6.0.1",
     "typescript": "^5.9.2"
   },

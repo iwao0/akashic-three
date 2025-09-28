@@ -122,19 +122,27 @@ class ESModuleConverter {
 
 	convert(filePath) {
 		if (!fs.existsSync(filePath)) {
-			logger.error("file not exists", filePath);
+			logger.error("ファイルが見つかりません", filePath);
+			return null;
 		}
 		const imports = {};
 		imports["."] = filePath;
 		const file = fs.readFileSync(filePath, "utf8");
 		const comments = [];
-		const esTree = acorn.parse(file, {
-			ecmaVersion: 2022,
-			sourceType: "module",
-			locations: true,
-			allowAwaitOutsideFunction: true,
-			onComment: comments
-		});
+		let esTree;
+		try {
+			esTree = acorn.parse(file, {
+				ecmaVersion: 2022,
+				sourceType: "module",
+				locations: true,
+				allowAwaitOutsideFunction: true,
+				onComment: comments
+			});
+		}
+		catch (err) {
+			logger.error(err);
+			return null;
+		}
 		try {
 			astravel.attachComments(esTree, comments);
 		}
@@ -145,50 +153,17 @@ class ESModuleConverter {
 		for (let i = 0; i < esTree.body.length; i++) {
 			const node = esTree.body[i];
 			if (node.type === "ImportDeclaration") {
-				const importNodes = [];
-				const importNode = structuredClone(this.importNode);
-				const sourcePath = path.parse(node.source.value);
-				let id = sourcePath.name;
-				if (id === "three") {
-					id = "THREE"
-				}
-				else {
-					const importPath = path.join(
-						path.dirname(filePath),
-						node.source.value
-					);
-					imports[path.parse(importPath).name] = importPath;
-				}
-				id = id.replace("-", "_");
-				id = id.replace(".", "_");
-				importNode.declarations[0].id.name = id;
-				importNode.declarations[0].init.arguments[0].value = node.source.value;
-				importNodes.unshift(importNode);
-				for (const s of node.specifiers) {
-					if (s.type !== "ImportSpecifier") {
-						continue;
-					}
-					const importNode = structuredClone(this.importSpecifierNode);
-					importNode.declarations[0].id.name = s.imported.name;
-					importNode.declarations[0].init.object.name = id;
-					importNode.declarations[0].init.property.name = s.imported.name;
-					importNodes.push(importNode);
-				}
-				esTree.body.splice(i, 1, ...importNodes);
+				const nodes = this.convertImportDeclaration(
+					filePath,
+					imports,
+					node
+				);
+				esTree.body.splice(i, 1, ...nodes);
 				continue;
 			}
 			if (node.type === "ExportNamedDeclaration") {
-				const exportNodes = [];
-				for (const s of node.specifiers) {
-					if (s.type !== "ExportSpecifier") {
-						continue;
-					}
-					const exportNode = structuredClone(this.exportNode);
-					exportNode.expression.left.property.name = s.exported.name;
-					exportNode.expression.right.name = s.exported.name;
-					exportNodes.push(exportNode);
-				}
-				esTree.body.splice(i, 1, ...exportNodes);
+				const nodes = this.convertExportNamedDeclaration(node);
+				esTree.body.splice(i, 1, ...nodes);
 				continue;
 			}
 		}
@@ -199,6 +174,55 @@ class ESModuleConverter {
 			text,
 			imports
 		};
+	}
+
+	convertImportDeclaration(filePath, imports, node) {
+		const nodes = [];
+		const importNode = structuredClone(this.importNode);
+		const sourcePath = path.parse(node.source.value);
+		let id = sourcePath.name;
+		if (id === "three") {
+			id = "THREE"
+		}
+		else {
+			id = id.replace("-", "_");
+			id = id.replace(".", "_");
+			id = "_" + id;
+
+			const importPath = path.join(
+				path.dirname(filePath),
+				node.source.value
+			).replace("\\", "/");
+			imports[path.parse(importPath).name] = importPath;
+		}
+		importNode.declarations[0].id.name = id;
+		importNode.declarations[0].init.arguments[0].value = node.source.value;
+		nodes.push(importNode);
+		for (const s of node.specifiers) {
+			if (s.type !== "ImportSpecifier") {
+				continue;
+			}
+			const specifierNode = structuredClone(this.importSpecifierNode);
+			specifierNode.declarations[0].id.name = s.imported.name;
+			specifierNode.declarations[0].init.object.name = id;
+			specifierNode.declarations[0].init.property.name = s.imported.name;
+			nodes.push(specifierNode);
+		}
+		return nodes;
+	}
+
+	convertExportNamedDeclaration(node) {
+		const nodes = [];
+		for (const s of node.specifiers) {
+			if (s.type !== "ExportSpecifier") {
+				continue;
+			}
+			const exportNode = structuredClone(this.exportNode);
+			exportNode.expression.left.property.name = s.exported.name;
+			exportNode.expression.right.name = s.exported.name;
+			nodes.push(exportNode);
+		}
+		return nodes;
 	}
 }
 
@@ -276,7 +300,7 @@ class Builder {
 			case "LICENSE":
 			case "README.md":
 			case "package.json":
-				return;
+				return false;
 		}
 		const srcPath = path.join(dirPath, filePath);
 		const dstPath = srcPath;
@@ -290,6 +314,9 @@ class Builder {
 		}
 
 		const converted = this.converter.convert(srcPath);
+		if (converted == null) {
+			return true;
+		}
 		fs.writeFileSync(dstPath, converted.text);
 
 		if (dirPath.indexOf("examples") >= 0) {
@@ -319,7 +346,10 @@ class Builder {
 			}
 			globalScripts.push(script);
 		}
-		const mainFilePath = path.join(threeDir, "build/three.cjs");
+		const mainFilePath = path.join(
+			threeDir,
+			"build/three.cjs"
+		).replace("\\", "/");
 		globalScripts.push(mainFilePath);
 		json.globalScripts = globalScripts;
 		json.moduleMainScripts["three"] = mainFilePath;
@@ -400,6 +430,50 @@ function findAndAddThreeModules(name) {
 		JSON.stringify(json, null, "\t")
 	);
 	return modulePaths;
+}
+
+function findThreeModules() {
+	const json = JSON.parse(
+		fs.readFileSync(akashicThreeJsonPath, "utf8")
+	);
+	if (!json.added) {
+		json.added = [];
+	}
+	if (!json.modules) {
+		json.modules = {};
+	}
+
+	const modulePaths = [];
+	findThreeModulePaths(json, json.added, modulePaths);
+	return modulePaths;
+}
+
+function copyModulesToGameJson() {
+	const modules = findThreeModules();
+	const json = JSON.parse(
+		fs.readFileSync(gameJsonPath, "utf8")
+	);
+	if (!json.globalScripts) {
+		json.globalScripts = [];
+	}
+	const globalScripts = [];
+	for (const script of json.globalScripts) {
+		if (script.indexOf("node_modules/three/build/") >= 0) {
+			globalScripts.push(script);
+			continue;
+		}
+		if (script.indexOf("node_modules/three") >= 0) {
+			continue;
+		}
+		globalScripts.push(script);
+	}
+	globalScripts.push(...modules);
+	json.globalScripts = globalScripts;
+	fs.writeFileSync(
+		gameJsonPath,
+		JSON.stringify(json, null, "\t")
+	);
+	console.log("正常に終了しました");
 }
 
 function addModuleToGameJson(name) {
@@ -579,8 +653,7 @@ const args = process.argv.slice(2);
 
 if (args.length == 0) {
 	if (fs.existsSync(akashicThreeJsonPath)) {
-		console.error("設定ファイルが存在するため、何もせずに終了します");
-		console.error(akashicThreeJsonPath);
+		copyModulesToGameJson();
 	}
 	else {
 		const builder = new Builder();
@@ -604,4 +677,3 @@ else {
 			break;
 	}
 }
-

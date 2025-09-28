@@ -6,6 +6,8 @@ akashicゲームへThree.jsを導入するためには、ソースコードの�
 
 TypeScriptへの対応も簡単にできるようにしています。
 
+TypeScriptのサンプルは [sample_ts](./sample_ts) ディレクトリを参照してください。
+
 ## 利用方法
 
 ### インストール
