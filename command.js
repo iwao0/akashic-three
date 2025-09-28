@@ -149,6 +149,7 @@ class ESModuleConverter {
 		catch (err) {
 			logger.error(err);
 		}
+		//fs.writeFileSync("./test/ast.txt", JSON.stringify(esTree, null, "\t"))
 
 		for (let i = 0; i < esTree.body.length; i++) {
 			const node = esTree.body[i];
@@ -185,28 +186,49 @@ class ESModuleConverter {
 			id = "THREE"
 		}
 		else {
-			id = id.replace("-", "_");
-			id = id.replace(".", "_");
+			id = id.replaceAll("-", "_");
+			id = id.replaceAll(".", "_");
 			id = "_" + id;
 
 			const importPath = path.join(
 				path.dirname(filePath),
 				node.source.value
-			).replace("\\", "/");
+			).replaceAll("\\", "/");
 			imports[path.parse(importPath).name] = importPath;
 		}
 		importNode.declarations[0].id.name = id;
 		importNode.declarations[0].init.arguments[0].value = node.source.value;
 		nodes.push(importNode);
-		for (const s of node.specifiers) {
-			if (s.type !== "ImportSpecifier") {
-				continue;
-			}
+
+		if (node.specifiers.length === 1) {
+			const s = node.specifiers[0];
 			const specifierNode = structuredClone(this.importSpecifierNode);
-			specifierNode.declarations[0].id.name = s.imported.name;
-			specifierNode.declarations[0].init.object.name = id;
-			specifierNode.declarations[0].init.property.name = s.imported.name;
-			nodes.push(specifierNode);
+			if (s.imported == null) {
+       			if (s.local.name.toUpperCase() !== "THREE") {
+					specifierNode.declarations[0].id.name = s.local.name;
+					specifierNode.declarations[0].init.object.name = id;
+					specifierNode.declarations[0].init.property.name = s.local.name;
+					nodes.push(specifierNode);
+				}
+			}
+			else {
+				specifierNode.declarations[0].id.name = s.imported.name;
+				specifierNode.declarations[0].init.object.name = id;
+				specifierNode.declarations[0].init.property.name = s.imported.name;
+				nodes.push(specifierNode);
+			}
+		}
+		else {
+			for (const s of node.specifiers) {
+				if (s.type !== "ImportSpecifier") {
+					continue;
+				}
+				const specifierNode = structuredClone(this.importSpecifierNode);
+				specifierNode.declarations[0].id.name = s.imported.name;
+				specifierNode.declarations[0].init.object.name = id;
+				specifierNode.declarations[0].init.property.name = s.imported.name;
+				nodes.push(specifierNode);
+			}
 		}
 		return nodes;
 	}
@@ -302,16 +324,21 @@ class Builder {
 			case "package.json":
 				return false;
 		}
-		const srcPath = path.join(dirPath, filePath);
+		const srcPath = path.join(
+			dirPath,
+			filePath
+		).replaceAll("\\", "/");
 		const dstPath = srcPath;
-		logger.log(srcPath);
 
-		if (srcPath.indexOf("build") >= 0 ||
+		if (srcPath.indexOf("/build") >= 0 ||
+			srcPath.indexOf("/src") >= 0 ||
 			srcPath.indexOf("Addons.js") >= 0 ||
 			srcPath.indexOf("demuxer_mp4.js") >= 0 ||
 			path.parse(srcPath).ext !== ".js") {
 			return false;
 		}
+
+		logger.log(srcPath);
 
 		const converted = this.converter.convert(srcPath);
 		if (converted == null) {
@@ -349,7 +376,7 @@ class Builder {
 		const mainFilePath = path.join(
 			threeDir,
 			"build/three.cjs"
-		).replace("\\", "/");
+		).replaceAll("\\", "/");
 		globalScripts.push(mainFilePath);
 		json.globalScripts = globalScripts;
 		json.moduleMainScripts["three"] = mainFilePath;
