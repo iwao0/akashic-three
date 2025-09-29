@@ -14,6 +14,10 @@ const logFilePath = path.join(
 	"./akashic-three.log"
 );
 const akashicThreeJsonPath = "./akashic-three.json";
+const akashicThreeJsonBackupPath = path.join(
+	path.dirname(__filename),
+	"./akashic-three.json"
+);
 const gameJsonPath = "./game.json";
 
 log4js.configure({
@@ -271,6 +275,10 @@ class Builder {
 		fs.writeFileSync(
 			akashicThreeJsonPath,
 			JSON.stringify(this.imports, null, "\t")
+		);
+		fs.copyFileSync(
+			akashicThreeJsonPath,
+			akashicThreeJsonBackupPath
 		);
 
 		logger.log("[@types/three]");
@@ -681,6 +689,13 @@ const args = process.argv.slice(2);
 if (args.length == 0) {
 	if (fs.existsSync(akashicThreeJsonPath)) {
 		copyModulesToGameJson();
+	}
+	else if (fs.existsSync(akashicThreeJsonBackupPath)) {
+		fs.copyFileSync(
+			akashicThreeJsonBackupPath,
+			akashicThreeJsonPath
+		);
+		console.log("正常に終了しました");
 	}
 	else {
 		const builder = new Builder();
