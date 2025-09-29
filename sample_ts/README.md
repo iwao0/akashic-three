@@ -1,21 +1,21 @@
-# typescript-shin-ichiba-ranking-game-sample
+# akashic-three/sample_ts
 
-**typescript-shin-ichiba-ranking-game-sample**はTypeScriptでAkashicのゲームを作る際のサンプルプロジェクトです。
+**akashic-three/sample_ts**はTypeScriptでakashic-threeを利用するサンプルプロジェクトです。
 
 ## 利用方法
 
- `typescript-shin-ichiba-ranking-game-sample` を利用するにはNode.jsが必要です。
+ `akashic-three/sample_ts` を利用するにはNode.jsが必要です。
 
 初回のみ、以下のコマンドを実行して、ビルドに必要なパッケージをインストールしてください。
-この作業は `typescript-shin-ichiba-ranking-game-sample` を新しく生成するごとに必要です。
 
 ```sh
 npm install
+npx @iwao0/akashic-three
 ```
 
 ### ビルド方法
 
-`typescript-shin-ichiba-ranking-game-sample` はTypeScriptで書かれているため、以下のコマンドでJavaScriptファイルに変換する必要があります。
+`akashic-three/sample_ts` はTypeScriptで書かれているため、以下のコマンドでJavaScriptファイルに変換する必要があります。
 
 ```sh
 npm run build
@@ -58,13 +58,13 @@ npm run build
 
 ### npm モジュールの追加・削除
 
-`typescript-shin-ichiba-ranking-game-sample` でnpmモジュールを利用する場合、このディレクトリで `akashic install <package_name>` することで npm モジュールを追加することができます。
+`akashic-three/sample_ts` でnpmモジュールを利用する場合、このディレクトリで `akashic install <package_name>` することで npm モジュールを追加することができます。
 
 また `akashic uninstall <package_name>` すると npm モジュールを削除することができます。
 
 ## エクスポート方法
 
-`typescript-shin-ichiba-ranking-game-sample` をエクスポートするときは以下のコマンドを利用します。
+`akashic-three/sample_ts` をエクスポートするときは以下のコマンドを利用します。
 
 ### htmlファイルのエクスポート
 
