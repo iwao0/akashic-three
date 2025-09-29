@@ -154,6 +154,7 @@ node_modules/three以下のソースコードを直接書き換えているの�
 
 ```sh
 akashic uninstall @iwao0/akashic-three
+rm ./akashic-three.json
 ```
 
 ## ビルド方法
