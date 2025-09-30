@@ -1,5 +1,7 @@
 # akashic-three
 
+[![NPM Package][npm]][npm-url]
+
 **akashic-three** は、Three.jsを導入するためのakashicゲーム向けプラグインです。
 
 akashicゲームへThree.jsを導入するためには、ソースコードの書き換え等の煩雑な作業が必要になることもあります。そういった作業を自動で実行し、簡単に導入するためのパッケージです。
@@ -177,3 +179,6 @@ npm test
 ## ライセンス
 本リポジトリは MIT License の元で公開されています。
 詳しくは [LICENSE](./LICENSE) をご覧ください。
+
+[npm]: https://img.shields.io/npm/v/@iwao0/akashic-three
+[npm-url]: https://www.npmjs.com/package/@iwao0/akashic-three
