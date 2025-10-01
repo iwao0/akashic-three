@@ -1,6 +1,6 @@
 {
   "name": "@iwao0/akashic-three",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "",
   "homepage": "https://github.com/iwao0/akashic-three#readme",
   "bugs": {
@@ -25,6 +25,7 @@
     "akashic-three": "command.js"
   },
   "files": [
+    "cli",
     "lib",
     "assets",
     "akashic-lib.json",
