@@ -127,7 +127,6 @@ tsconfig.jsonに次の項目を追加してください。
 }
 ```
 
-
 ### 実行時にMath.random()を使わないでというエラーが表示される
 
 Three.jsの内部でUUIDを作成する時に使用されているため、akashicの乱数生成器に置き換えるのは困難です。表示を抑制するためには、sandbox.config.jsを作成し、次のように入力してください。
@@ -141,6 +140,23 @@ module.exports = {
 };
 ```
 
+### 実行時にAbortController is not definedと表示される
+
+マルチプレイモードで起動すると、このエラーが表示されます。
+
+node_modules/three/build/three.cjsの先頭に、次の内容を追加することで回避できます。
+
+```javascript
+class AbortController {
+	signal = null;
+	abort(reason) {
+		if (!reason) {
+			reason = "AbortError";
+		}
+		throw new DOMException(reason);
+	}
+}
+```
 
 ## akashic-threeの動作内容について
 
